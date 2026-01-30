@@ -106,7 +106,11 @@
             android:exported="false"
             tools:node="merge">
         </service>
-
+        <service
+        android:name=".server.ServerService"
+        android:enabled="true"
+        android:exported="false"
+        android:foregroundServiceType="dataSync" />
         <!-- For Firebase Analytics. -->
         <receiver
             android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
@@ -124,5 +128,10 @@
         <uses-native-library android:name="libvndksupport.so" android:required="false"/>
         <uses-native-library android:name="libOpenCL.so" android:required="false"/>
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
 
 </manifest>
