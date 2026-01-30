@@ -20,6 +20,10 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Switch
+import com.google.ai.edge.gallery.server.ServerService
+import com.google.ai.edge.gallery.server.getLocalIpAddress
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -91,6 +95,8 @@ private val THEME_OPTIONS = listOf(Theme.THEME_AUTO, Theme.THEME_LIGHT, Theme.TH
 fun SettingsDialog(
   curThemeOverride: Theme,
   modelManagerViewModel: ModelManagerViewModel,
+  isServerRunning: Boolean,
+  onServerToggled: (Boolean) -> Unit,
   onDismissed: () -> Unit,
 ) {
   var selectedTheme by remember { mutableStateOf(curThemeOverride) }
@@ -183,6 +189,67 @@ fun SettingsDialog(
                   label = { Text(themeLabel(theme)) },
                 )
               }
+            }
+          }
+
+          // Server Section
+          Column(modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
+            Text(
+              "AI Server",
+              style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
+            )
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text(
+                  text = "Local Network Server",
+                  style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                  text = if (isServerRunning) "Running on port 8080" else "Stopped",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                // Show IP address if server is running
+                if (isServerRunning) {
+                  Text(
+                    text = "Access at: http://${getLocalIpAddress()}:8080",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp)
+                  )
+                }
+              }
+
+              Switch(
+                checked = isServerRunning,
+                onCheckedChange = { enabled ->
+                  val intent = Intent(context, ServerService::class.java).apply {
+                    action = if (enabled) {
+                      ServerService.ACTION_START
+                    } else {
+                      ServerService.ACTION_STOP
+                    }
+                  }
+
+                  if (enabled) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                      context.startForegroundService(intent)
+                    } else {
+                      context.startService(intent)
+                    }
+                  } else {
+                    context.stopService(intent)
+                  }
+
+                  onServerToggled(enabled)
+                }
+              )
             }
           }
 

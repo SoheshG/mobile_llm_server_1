@@ -176,6 +176,7 @@ fun HomeScreen(
 ) {
   val uiState by modelManagerViewModel.uiState.collectAsState()
   var showSettingsDialog by remember { mutableStateOf(false) }
+  var isServerRunning by remember { mutableStateOf(false) }
   var showImportModelSheet by remember { mutableStateOf(false) }
   var showUnsupportedFileTypeDialog by remember { mutableStateOf(false) }
   var showUnsupportedWebModelDialog by remember { mutableStateOf(false) }
@@ -466,6 +467,8 @@ fun HomeScreen(
     SettingsDialog(
       curThemeOverride = modelManagerViewModel.readThemeOverride(),
       modelManagerViewModel = modelManagerViewModel,
+      isServerRunning = isServerRunning,
+      onServerToggled = { isServerRunning = it },
       onDismissed = { showSettingsDialog = false },
     )
   }
